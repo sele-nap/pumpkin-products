@@ -21,9 +21,9 @@ app.use('/api/products', productRoutes);
 
 
 mongoose.connect(MONGO_URI).then(() => {
-console.log('Mongo connected');
-app.listen(PORT, () => console.log(`API on http://localhost:${PORT}`));
+  console.log('Mongo connected');
+  app.listen(PORT, () => console.log(`API on http://localhost:${PORT}`));
 }).catch(err => {
-console.error('Mongo error', err);
-process.exit(1);
+  console.error('Mongo error', err);
+  process.exit(1);
 });
