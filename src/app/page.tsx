@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import type { Product } from '@/types';
+import type { Product, ProductInput } from '@/types';
 import ProductCard from '@/components/ProductCard';
 import ProductForm from '@/components/ProductForm';
 
@@ -14,101 +14,59 @@ export default function Dashboard() {
   const load = async () => {
     setLoading(true);
     const res = await fetch('/api/products');
-    if (res.status === 401) {
-      window.location.href = '/login';
-      return;
-    }
-    const data = await res.json();
+    if (res.status === 401) { window.location.href = '/login'; return; }
+    const data: Product[] = await res.json();
     setProducts(data);
     setLoading(false);
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const filtered = products.filter(
     (p) =>
       (p.name?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
-      (p.variety?.toLowerCase() ?? '').includes(search.toLowerCase())
+      (p.variety ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleCreate = async (payload: Product) => {
+  // CREATE
+  const handleCreate = async (payload: ProductInput) => {
     const res = await fetch('/api/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (res.ok) {
-      await load();
-      setMode('list');
-    }
+    if (res.ok) { await load(); setMode('list'); }
   };
 
-  const handleUpdate = async (payload: Product) => {
+  // UPDATE
+  const handleUpdate = async (payload: ProductInput) => {
     if (!editing?.id) return;
     const res = await fetch(`/api/products/${editing.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (res.ok) {
-      await load();
-      setEditing(null);
-      setMode('list');
-    }
+    if (res.ok) { await load(); setEditing(null); setMode('list'); }
   };
 
+  // DELETE
   const handleDelete = async (id: string) => {
     const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      setProducts((ps) => ps.filter((p) => p.id !== id));
-    }
+    if (res.ok) setProducts((ps) => ps.filter((p) => p.id !== id));
   };
 
   return (
     <div>
-      <div className="mb-4 flex flex-col items-stretch justify-between gap-3 sm:flex-row">
-        <input
-          className="input w-full sm:w-80"
-          placeholder="Search a pumpkin…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <div className="flex gap-2">
-          {mode === 'list' ? (
-            <button className="btn btn-primary" onClick={() => setMode('create')}>
-              Add a pumpkin
-            </button>
-          ) : (
-            <button
-              className="btn"
-              onClick={() => {
-                setMode('list');
-                setEditing(null);
-              }}
-            >
-              Back to list
-            </button>
-          )}
-        </div>
-      </div>
-
       {mode === 'list' && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="card h-40 animate-pulse" />
-            ))
+            Array.from({ length: 6 }).map((_, i) => <div key={i} className="card h-40 animate-pulse" />)
           ) : filtered.length ? (
             filtered.map((p) => (
               <ProductCard
                 key={p.id}
                 p={p}
-                onEdit={(pp) => {
-                  setEditing(pp);
-                  setMode('edit');
-                }}
+                onEdit={(pp) => { setEditing(pp); setMode('edit'); }}
                 onDelete={handleDelete}
               />
             ))
@@ -126,10 +84,7 @@ export default function Dashboard() {
         <ProductForm
           initial={editing}
           onSubmit={handleUpdate}
-          onCancel={() => {
-            setEditing(null);
-            setMode('list');
-          }}
+          onCancel={() => { setEditing(null); setMode('list'); }}
         />
       )}
     </div>
