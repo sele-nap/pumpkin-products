@@ -1,4 +1,5 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import type { Product, ProductInput } from '@/types';
 import ProductCard from '@/components/ProductCard';
@@ -11,22 +12,30 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  const load = async () => {
+  async function load() {
     setLoading(true);
     const res = await fetch('/api/products');
-    if (res.status === 401) { window.location.href = '/login'; return; }
+    if (res.status === 401) {
+      window.location.href = '/login';
+      return;
+    }
     const data: Product[] = await res.json();
     setProducts(data);
     setLoading(false);
-  };
+  }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
-  const filtered = products.filter(
-    (p) =>
-      (p.name?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
-      (p.variety ?? '').toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = products.filter((p) => {
+    const q = search.toLowerCase();
+    return (
+      (p.name ?? '').toLowerCase().includes(q) ||
+      (p.variety ?? '').toLowerCase().includes(q) ||
+      (p.color ?? '').toLowerCase().includes(q)
+    );
+  });
 
   // CREATE
   const handleCreate = async (payload: ProductInput) => {
@@ -35,7 +44,10 @@ export default function Dashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (res.ok) { await load(); setMode('list'); }
+    if (res.ok) {
+      await load();
+      setMode('list');
+    }
   };
 
   // UPDATE
@@ -46,7 +58,11 @@ export default function Dashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    if (res.ok) { await load(); setEditing(null); setMode('list'); }
+    if (res.ok) {
+      await load();
+      setEditing(null);
+      setMode('list');
+    }
   };
 
   // DELETE
@@ -57,34 +73,76 @@ export default function Dashboard() {
 
   return (
     <div>
+      <div className="mb-4 flex flex-col items-stretch justify-between gap-3 sm:flex-row">
+        <input
+          className="input w-full sm:w-80"
+          placeholder="Search a pumpkin…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="flex gap-2">
+          {mode === 'list' ? (
+            <button
+              className="btn btn-primary"
+              onClick={() => setMode('create')}
+            >
+              Add a pumpkin
+            </button>
+          ) : (
+            <button
+              className="btn"
+              onClick={() => {
+                setMode('list');
+                setEditing(null);
+              }}
+            >
+              Back to list
+            </button>
+          )}
+        </div>
+      </div>
+
       {mode === 'list' && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            Array.from({ length: 6 }).map((_, i) => <div key={i} className="card h-40 animate-pulse" />)
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="card h-40 animate-pulse" />
+            ))
           ) : filtered.length ? (
             filtered.map((p) => (
               <ProductCard
                 key={p.id}
                 p={p}
-                onEdit={(pp) => { setEditing(pp); setMode('edit'); }}
+                onEdit={(pp) => {
+                  setEditing(pp);
+                  setMode('edit');
+                }}
                 onDelete={handleDelete}
               />
             ))
           ) : (
-            <div className="col-span-full text-center text-gray-600">No products</div>
+            <div className="col-span-full text-center text-gray-600">
+              No products
+            </div>
           )}
         </div>
       )}
 
       {mode === 'create' && (
-        <ProductForm onSubmit={handleCreate} onCancel={() => setMode('list')} />
+        <ProductForm
+          onSubmit={handleCreate}
+          onCancel={() => setMode('list')}
+        />
       )}
 
       {mode === 'edit' && editing && (
         <ProductForm
           initial={editing}
           onSubmit={handleUpdate}
-          onCancel={() => { setEditing(null); setMode('list'); }}
+          onCancel={() => {
+            setEditing(null);
+            setMode('list');
+          }}
         />
       )}
     </div>
