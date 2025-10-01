@@ -2,10 +2,13 @@ import './globals.css';
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 
-
-export const metadata: Metadata = { title: 'Pumpkin Products', description: 'Cozy pumpkins CRUD' };
-
-
+export const metadata: Metadata = {
+  title: 'Pumpkin Products',
+  description: 'Pumpkins CRUD',
+  icons: {
+    icon: '/pumpkin.png',
+  },
+};
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">

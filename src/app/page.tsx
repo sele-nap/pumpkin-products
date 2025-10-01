@@ -46,8 +46,8 @@ export default function Dashboard() {
   };
 
   const handleUpdate = async (payload: Product) => {
-    if (!editing?._id) return;
-    const res = await fetch(`/api/products/${editing._id}`, {
+    if (!editing?.id) return;
+    const res = await fetch(`/api/products/${editing.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -62,7 +62,7 @@ export default function Dashboard() {
   const handleDelete = async (id: string) => {
     const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
     if (res.ok) {
-      setProducts((ps) => ps.filter((p) => p._id !== id));
+      setProducts((ps) => ps.filter((p) => p.id !== id));
     }
   };
 
@@ -103,7 +103,7 @@ export default function Dashboard() {
           ) : filtered.length ? (
             filtered.map((p) => (
               <ProductCard
-                key={p._id}
+                key={p.id}
                 p={p}
                 onEdit={(pp) => {
                   setEditing(pp);
