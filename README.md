@@ -1,31 +1,37 @@
-A simple product management web app built with Next.js (TypeScript), MongoDB, and JWT authentication.
-Users can sign up, log in, and manage pumpkins (create, edit, delete, list).
+# 🎃 Pumpkin Products
 
-Features
+A mini app to manage pumpkins (and other cucurbits), built with **Next.js 14 + TypeScript**, **MongoDB**, and **TailwindCSS**.  
+It includes authentication (JWT in HttpOnly cookies) and full CRUD for products.
 
-🔐 Authentication with JWT (signup & login)
+---
 
-📦 CRUD operations on pumpkins
+## Features
+- User authentication (signup/login/logout)
+- Protected routes (only logged-in users can manage pumpkins)
+- CRUD for products
 
-Tech Stack
+---
 
-Frontend & Backend: Next.js 14 (App Router) + TypeScript
+## Tech Stack
+- [Next.js](https://nextjs.org/) 14 (App Router)
+- [TypeScript](https://www.typescriptlang.org/)
+- [MongoDB](https://www.mongodb.com/)
+- [TailwindCSS](https://tailwindcss.com/)
 
-Database: MongoDB (Mongoose)
+---
 
-Auth: JWT
+## Installation
 
-Styling: Tailwind CSS
+```bash
+# 1. Clone the repo
+git clone https://github.com/your-username/pumpkin-products.git
+cd pumpkin-products
 
-Getting Started
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Set up environment
-cp .env.example .env    # add your MongoDB URI & JWT secret
+# 3. Copy .env example and set your values
+cp .env.example .env
 
-# Run development server
+# 4. Run the dev server
 npm run dev
-
-
-Then open http://localhost:3000
