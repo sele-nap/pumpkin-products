@@ -1,6 +1,6 @@
 # 🎃 Pumpkin Products
 
-A mini app to manage pumpkins (and other cucurbits), built with **Next.js 14 + TypeScript**, **MongoDB**, and **TailwindCSS**.  
+A mini app to manage pumpkins (and other cucurbits), built with **Next.js 14 + TypeScript**, **Prisma (SQLite)**, and **TailwindCSS**.  
 It includes authentication (JWT in HttpOnly cookies) and full CRUD for products.
 
 ---
@@ -15,7 +15,7 @@ It includes authentication (JWT in HttpOnly cookies) and full CRUD for products.
 ## Tech Stack
 - [Next.js](https://nextjs.org/) 14 (App Router)
 - [TypeScript](https://www.typescriptlang.org/)
-- [MongoDB](https://www.mongodb.com/)
+- [Prisma](https://www.prisma.io/) + SQLite
 - [TailwindCSS](https://tailwindcss.com/)
 
 ---
@@ -33,5 +33,8 @@ npm install
 # 3. Copy .env example and set your values
 cp .env.example .env
 
-# 4. Run the dev server
+# 4. Initialize database
+npx prisma migrate dev --name init
+
+# 5. Run the dev server
 npm run dev
