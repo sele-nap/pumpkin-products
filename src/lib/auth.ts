@@ -1,14 +1,17 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload, SignOptions, Secret } from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET ?? '';
+const JWT_SECRET: Secret = process.env.JWT_SECRET as string;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
-if (!JWT_SECRET) throw new Error('Missing JWT_SECRET');
+if (!JWT_SECRET) {
+  throw new Error('Missing JWT_SECRET');
+}
 
 export type TokenPayload = JwtPayload & { id: string; email?: string };
 
-export function signJwt(payload: object) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+export function signJwt(payload: object): string {
+  const options: SignOptions = { expiresIn: JWT_EXPIRES_IN };
+  return jwt.sign(payload, JWT_SECRET, options);
 }
 
 export function verifyJwt<T = TokenPayload>(token?: string): T | null {
