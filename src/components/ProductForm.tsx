@@ -17,7 +17,7 @@ function toFormState(p?: Product): FormState {
     name: p?.name ?? '',
     variety: p?.variety ?? '',
     color: p?.color ?? '',
-    weightKg: p?.weightKg !== undefined && p?.weightKg !== null ? String(p.weightKg) : '', // '' means empty
+    weightKg: p?.weightKg !== undefined && p?.weightKg !== null ? String(p.weightKg) : '',
     priceEUR: p?.priceEUR !== undefined && p?.priceEUR !== null ? String(p.priceEUR) : '',
     description: p?.description ?? '',
     imageUrl: p?.imageUrl ?? '',

@@ -18,7 +18,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   const id = params.id;
   const body = await req.json();
 
-  // Ensure ownership
   const exists = await prisma.product.findFirst({ where: { id, ownerId: userId } });
   if (!exists) return NextResponse.json({ message: 'Not found' }, { status: 404 });
 
