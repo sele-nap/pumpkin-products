@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { dbConnect } from '@/lib/db';
-import Product from '@/models/Product';
+import { prisma } from '@/lib/prisma';
 import { verifyJwt } from '@/lib/auth';
-
 
 function getUserId(req: Request) {
   const cookie = req.headers.get('cookie') || '';
@@ -13,25 +11,35 @@ function getUserId(req: Request) {
   return payload?.id ?? null;
 }
 
-
 export async function GET(req: Request) {
   const userId = getUserId(req);
   if (!userId) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  await dbConnect();
-  const list = await Product.find({ owner: userId }).sort({ createdAt: -1 });
-  return NextResponse.json(list);
-}
 
+  const items = await prisma.product.findMany({
+    where: { ownerId: userId },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return NextResponse.json(items);
+}
 
 export async function POST(req: Request) {
   const userId = getUserId(req);
   if (!userId) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  await dbConnect();
-  try {
-    const body = await req.json();
-    const created = await Product.create({ ...body, owner: userId });
-    return NextResponse.json(created, { status: 201 });
-  } catch {
-    return NextResponse.json({ message: 'Invalid payload' }, { status: 400 });
-  }
+
+  const body = await req.json();
+  const created = await prisma.product.create({
+    data: {
+      name: body.name,
+      variety: body.variety ?? null,
+      color: body.color ?? null,
+      weightKg: body.weightKg ?? null,
+      priceEUR: body.priceEUR ?? null,
+      imageUrl: body.imageUrl ?? null,
+      description: body.description ?? null,
+      ownerId: userId,
+    },
+  });
+
+  return NextResponse.json(created, { status: 201 });
 }

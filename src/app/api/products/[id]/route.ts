@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { dbConnect } from '@/lib/db';
-import Product from '@/models/Product';
+import { prisma } from '@/lib/prisma';
 import { verifyJwt } from '@/lib/auth';
-
 
 function getUserId(req: Request) {
   const cookie = req.headers.get('cookie') || '';
@@ -13,27 +11,41 @@ function getUserId(req: Request) {
   return payload?.id ?? null;
 }
 
-
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  await dbConnect();
-  const item = await Product.findById(params.id);
-  return item ? NextResponse.json(item) : NextResponse.json({ message: 'Not found' }, { status: 404 });
-}
-
-
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const userId = getUserId(req);
   if (!userId) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  await dbConnect();
-  const updated = await Product.findOneAndUpdate({ _id: params.id, owner: userId }, await req.json(), { new: true });
-  return updated ? NextResponse.json(updated) : NextResponse.json({ message: 'Not found' }, { status: 404 });
-}
 
+  const id = params.id;
+  const body = await req.json();
+
+  // Ensure ownership
+  const exists = await prisma.product.findFirst({ where: { id, ownerId: userId } });
+  if (!exists) return NextResponse.json({ message: 'Not found' }, { status: 404 });
+
+  const updated = await prisma.product.update({
+    where: { id },
+    data: {
+      name: body.name,
+      variety: body.variety ?? null,
+      color: body.color ?? null,
+      weightKg: body.weightKg ?? null,
+      priceEUR: body.priceEUR ?? null,
+      imageUrl: body.imageUrl ?? null,
+      description: body.description ?? null,
+    },
+  });
+
+  return NextResponse.json(updated);
+}
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   const userId = getUserId(req);
   if (!userId) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  await dbConnect();
-  const deleted = await Product.findOneAndDelete({ _id: params.id, owner: userId });
-  return deleted ? NextResponse.json({ ok: true }) : NextResponse.json({ message: 'Not found' }, { status: 404 });
+
+  const id = params.id;
+  const exists = await prisma.product.findFirst({ where: { id, ownerId: userId } });
+  if (!exists) return NextResponse.json({ message: 'Not found' }, { status: 404 });
+
+  await prisma.product.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
 }
