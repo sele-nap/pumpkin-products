@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-
 export default function Navbar() {
   const [loading, setLoading] = useState(false);
   const logout = async () => {

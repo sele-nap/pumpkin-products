@@ -2,12 +2,10 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 
-
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault(); setError(null);
@@ -18,7 +16,6 @@ export default function SignupPage() {
     if (res.ok) window.location.href = '/';
     else setError((await res.json()).message || 'Could not create account');
   };
-
 
   return (
     <div className="mx-auto max-w-md">
