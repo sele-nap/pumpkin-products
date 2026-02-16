@@ -25,7 +25,7 @@ export default function ProductCard({
         <img
           src={p.imageUrl || 'https://blocks.astratic.com/img/general-img-square.png'}
           alt={p.name}
-          className="h-24 w-24 rounded-xl2 object-cover"
+          className="h-24 w-24 rounded-xl object-cover"
         />
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-800">{p.name}</h3>
@@ -38,7 +38,7 @@ export default function ProductCard({
             </p>
           )}
           <div className="mt-3 flex items-center justify-between">
-            <span className="rounded-xl2 bg-pumpkin-100 px-2 py-1 text-sm text-pumpkin-700">
+            <span className="rounded-xl bg-pumpkin-100 px-2 py-1 text-sm text-pumpkin-700">
               {(p.priceEUR ?? 0).toFixed(2)} €
             </span>
             <button

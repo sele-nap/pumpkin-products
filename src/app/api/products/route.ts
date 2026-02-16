@@ -27,19 +27,36 @@ export async function POST(req: Request) {
   const userId = getUserId(req);
   if (!userId) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json();
-  const created = await prisma.product.create({
-    data: {
-      name: body.name,
-      variety: body.variety ?? null,
-      color: body.color ?? null,
-      weightKg: body.weightKg ?? null,
-      priceEUR: body.priceEUR ?? null,
-      imageUrl: body.imageUrl ?? null,
-      description: body.description ?? null,
-      ownerId: userId,
-    },
-  });
+  try {
+    const body = await req.json();
 
-  return NextResponse.json(created, { status: 201 });
+    // Validation
+    if (!body.name || body.name.trim() === '') {
+      return NextResponse.json(
+        { message: 'Name is required' },
+        { status: 400 }
+      );
+    }
+
+    const created = await prisma.product.create({
+      data: {
+        name: body.name.trim(),
+        variety: body.variety ? body.variety.trim() : null,
+        color: body.color ? body.color.trim() : null,
+        weightKg: body.weightKg ? Number(body.weightKg) : null,
+        priceEUR: body.priceEUR ? Number(body.priceEUR) : null,
+        imageUrl: body.imageUrl ? body.imageUrl.trim() : null,
+        description: body.description ? body.description.trim() : null,
+        ownerId: userId,
+      },
+    });
+
+    return NextResponse.json(created, { status: 201 });
+  } catch (error) {
+    console.error('Error creating product:', error);
+    return NextResponse.json(
+      { message: 'Failed to create product' },
+      { status: 500 }
+    );
+  }
 }

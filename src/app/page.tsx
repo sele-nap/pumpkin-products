@@ -11,6 +11,8 @@ export default function Dashboard() {
   const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list');
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -39,29 +41,59 @@ export default function Dashboard() {
 
   // CREATE
   const handleCreate = async (payload: ProductInput) => {
-    const res = await fetch('/api/products', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (res.ok) {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setError(data.message || 'Failed to create product');
+        return;
+      }
+      
       await load();
       setMode('list');
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+      console.error(err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   // UPDATE
   const handleUpdate = async (payload: ProductInput) => {
     if (!editing?.id) return;
-    const res = await fetch(`/api/products/${editing.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (res.ok) {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/products/${editing.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setError(data.message || 'Failed to update product');
+        return;
+      }
+      
       await load();
       setEditing(null);
       setMode('list');
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+      console.error(err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -73,6 +105,12 @@ export default function Dashboard() {
 
   return (
     <div>
+      {error && (
+        <div className="mb-4 rounded-lg bg-red-100 p-4 text-red-700">
+          {error}
+        </div>
+      )}
+
       <div className="mb-4 flex flex-col items-stretch justify-between gap-3 sm:flex-row">
         <input
           className="input w-full sm:w-80"
@@ -132,6 +170,7 @@ export default function Dashboard() {
         <ProductForm
           onSubmit={handleCreate}
           onCancel={() => setMode('list')}
+          submitting={submitting}
         />
       )}
 
@@ -143,6 +182,7 @@ export default function Dashboard() {
             setEditing(null);
             setMode('list');
           }}
+          submitting={submitting}
         />
       )}
     </div>
